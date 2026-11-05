@@ -25764,6 +25764,64 @@ showSetup();
 <div style="position:fixed; bottom:6px; right:10px; color:rgba(255,255,255,0.4); font-size:11px; font-family:system-ui, sans-serif; font-weight:800; pointer-events:none; z-index:999999; text-shadow: 1px 1px 2px #000;">
     © 2026 Created by YOUR_NAME
 </div>
+<!-- AUTO-UPDATE SYSTEM -->
+<script>
+(function() {
+  var GITHUB_REPO = 'meroudhyog-svg/EliteFM'; // Your repo
+  var CURRENT_VERSION = '1.0.1'; // WE ARE STARTING AT 1.0.1
+  var APK_NAME = 'app-release.apk';
+
+  function isNewer(latest, current) {
+    return latest.localeCompare(current, undefined, { numeric: true, sensitivity: 'base' }) > 0;
+  }
+
+  function checkUpdate() {
+    fetch('https://api.github.com/repos/' + GITHUB_REPO + '/releases/latest')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (!data.tag_name) return;
+        
+        // Strip the 'v' from the tag name (e.g. "v1.0.2" -> "1.0.2")
+        var latestVersion = data.tag_name.replace(/^v/, '');
+        
+        if (isNewer(latestVersion, CURRENT_VERSION)) {
+          var apk = (data.assets || []).find(function(a) {
+            return a.name === APK_NAME || a.name.endsWith('.apk');
+          });
+          
+          if (!apk) return; 
+          var url = apk.browser_download_url;
+          
+          if (confirm('Update Available!\n\nCurrent: ' + CURRENT_VERSION + '\nLatest: ' + latestVersion + '\n\nDownload and install now?')) {
+            
+            var A = (window.ApkUpdater) || (window.cordova && window.cordova.plugins && (window.cordova.plugins.ApkUpdater || window.cordova.plugins.apkupdater));
+            if (!A) { alert('Update plugin not found. Reinstall the app.'); return; }
+            
+            A.canRequestPackageInstalls().then(function(can) {
+              if (!can) {
+                A.openInstallSetting();
+                alert('Please allow "Install from this source" for Elite FM, then tap Update again.');
+                return;
+              }
+              A.download(url).then(function() {
+                return A.install();
+              }).catch(function(err) {
+                alert('Update failed: ' + (err && err.message ? err.message : err));
+              });
+            }).catch(function(err) {
+              alert('Permission check failed: ' + err);
+            });
+            
+          }
+        }
+      })
+      .catch(function(e) { console.log('Update check failed', e); });
+  }
+
+  // Check for updates 3 seconds after the game loads
+  setTimeout(checkUpdate, 3000);
+})();
+</script>
 </body>
 
 </html>
