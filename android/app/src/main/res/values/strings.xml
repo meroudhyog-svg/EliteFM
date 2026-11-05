@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Elite FM by Aashish Thechmi</string>
+    <string name="title_activity_main">Elite FM</string>
+    <string name="package_name">com.elitefm.app</string>
+    <string name="custom_url_scheme">com.elitefm.app</string>
+</resources>
